@@ -40,3 +40,28 @@ write_view <- function(
   yaml::write_yaml(v, file.path(view_dir, paste0(semantic_name, ".yml")))
   invisible(TRUE)
 }
+
+#' Read a view definition
+#'
+#' Reads a YAML view file for a given semantic dataset name.
+#' Returns NULL if the view does not exist or cannot be read.
+#'
+#' @param view_dir Directory containing view files
+#' @param semantic_name Stable semantic dataset name
+#'
+#' @return A named list representing the view definition, or NULL
+#'
+#' @export
+read_view <- function(view_dir, semantic_name) {
+  p <- file.path(view_dir, paste0(semantic_name, ".yml"))
+  if (!file.exists(p)) return(NULL)
+  yml <- yaml::read_yaml(p)
+  if (!is.list(yml)) return(NULL)
+  yml
+}
+
+
+
+
+
+
