@@ -249,7 +249,7 @@ record package versions:
 renv::init()
 ```
 
-This step should **not** be repeated in an existing project.
+Do not rerun `renv::init()` in an existing project; use `renv::restore()` instead.
 
 ### Git tracking for renv
 
@@ -260,6 +260,13 @@ The following `renv` files should be tracked in git:
 
 Local package libraries managed by `renv` (e.g. `renv/library/`) are
 machine-specific and must not be committed.
+
+### Other files tracked by git
+
+In addition to `renv.lock`, git must track:
+
+- All R scripts used to produce the analysis outputs.
+- `data_index/` (metadata and views defining data selection).
 
 ### Reproducing results
 
@@ -288,6 +295,8 @@ git commit -am "Reproducible run: code + data_index + renv"
 
 This commit represents a reproducible archival checkpoint.
 
+A new commit is only required if code, data selection (`data_index/`),
+or package versions have changed.
 
 ---
 
