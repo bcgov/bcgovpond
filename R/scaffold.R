@@ -33,7 +33,6 @@ create_bcgov_pond_project <- function(
   protected_paths <- c(
     "data_store",
     "data_index",
-    "R/pond_utilities.R",
     "01_ingest_data.R"
   )
 
@@ -96,32 +95,6 @@ create_bcgov_pond_project <- function(
     showWarnings = FALSE
   )
 
-  # ------------------------------------------------------------
-  # pond_utilities.R (project-local copy)
-  # ------------------------------------------------------------
-  pond_utils_path <- file.path(path_norm, "R", "pond_utilities.R")
-
-  if (!file.exists(pond_utils_path) || overwrite) {
-    writeLines(
-      c(
-        "# Pond utilities",
-        "# Project-local copy (self-contained, reproducible)",
-        "# ------------------------------------------------------------",
-        "",
-        "# ---- paste your pond_utilities.R here ----",
-        ""
-      ),
-      pond_utils_path
-    )
-  }
-
-  insert_licence_header <- switch(
-    licence,
-    apache2 = bcgovr::insert_bcgov_apache_header,
-    `cc-by` = bcgovr::insert_bcgov_cc_header
-  )
-
-  insert_licence_header(pond_utils_path)
 
   # ------------------------------------------------------------
   # 01_ingest_data.R
@@ -131,7 +104,7 @@ create_bcgov_pond_project <- function(
   if (!file.exists(ingest_script) || overwrite) {
     writeLines(
       c(
-        'source("R/pond_utilities.R")',
+        'library(bcgovpond)',
         "",
         "# =========================================================",
         "# Data ingestion workflow",
@@ -163,8 +136,6 @@ create_bcgov_pond_project <- function(
       ingest_script
     )
   }
-
-  insert_licence_header(ingest_script)
 
   message("Created 01_ingest_data.R")
 
