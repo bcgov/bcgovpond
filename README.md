@@ -236,6 +236,61 @@ You don’t need a data lake to keep your data from lying to you.
 
 ---
 
+## Reproducibility
+
+This project is reproducible given the same raw data and R environment.
+
+### Project setup (one-time)
+
+When the project is first created, the author should initialize `renv` once to
+record package versions:
+
+```r
+renv::init()
+```
+
+This step should **not** be repeated in an existing project.
+
+### Git tracking for renv
+
+The following `renv` files should be tracked in git:
+
+- `renv.lock`
+- `renv/activate.R`
+
+Local package libraries managed by `renv` (e.g. `renv/library/`) are
+machine-specific and must not be committed.
+
+### Reproducing results
+
+To reproduce results for a given git commit:
+
+1. Check out the desired commit.
+2. Ensure the corresponding raw files exist in `data_store/data_pond/`.
+3. Restore package versions with:
+
+   ```r
+   renv::restore()
+   ```
+4. Run the project scripts as documented.
+
+Exact reproduction assumes a compatible R version and system libraries.
+
+### Archival runs
+
+At the end of a finalized analysis run, record the environment and commit the result:
+
+```r
+renv::status()
+renv::snapshot()
+git commit -am "Reproducible run: code + data_index + renv"
+```
+
+This commit represents a reproducible archival checkpoint.
+
+
+---
+
 ## Final warning
 
 If you are looking for:
