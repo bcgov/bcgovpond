@@ -61,6 +61,33 @@ read_view <- function(view_dir, semantic_name) {
 }
 
 
+#' Resolve the current file path for a dataset
+#'
+#' Given a semantic dataset name, resolves the preferred concrete
+#' file path (raw or parquet) based on the view definition.
+#'
+#' @param name Semantic dataset name
+#'
+#' @return Normalized file path to the current dataset representation
+#'
+#' @export
+resolve_current <- function(name) {
+  view_dir <- file.path("data_index", "views")
+  yml <- yaml::read_yaml(file.path(view_dir, paste0(name, ".yml")))
+
+  stopifnot(is.list(yml))
+  if (is.null(yml$raw) || !nzchar(yml$raw)) {
+    stop("View is missing required field 'raw' for: ", name)
+  }
+
+  preferred <- yml$preferred %||% "raw"
+
+  if (preferred == "parquet" && !is.null(yml$parquet) && nzchar(yml$parquet)) {
+    return(normalizePath(file.path("data_store", "data_parquet", yml$parquet), mustWork = FALSE))
+  }
+
+  normalizePath(file.path("data_store", "data_pond", yml$raw), mustWork = FALSE)
+}
 
 
 
