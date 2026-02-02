@@ -29,8 +29,24 @@ as_filename <- function(x) {
 
 now_stamp <- function() format(Sys.time(), "%Y-%m-%d %H:%M:%S")
 
+# Read the first line of a CSV file to infer column names.
+# Reads only a small prefix of the file; returns NULL if no header is found.
+get_csv_header <- function(path) {
+  con <- file(path, open = "rb")
+  on.exit(close(con), add = TRUE)
 
+  raw <- readBin(con, what = "raw", n = 4096)
+  if (length(raw) == 0) return(NULL)
 
+  txt <- rawToChar(raw)
+  txt <- sub("^\ufeff", "", txt)   # strip UTF-8 BOM
+  line <- strsplit(txt, "\n", fixed = TRUE)[[1]][1]
+
+  hdr <- strsplit(line, ",", fixed = TRUE)[[1]]
+  if (length(hdr) < 2) return(NULL)
+
+  make.unique(trimws(hdr), sep = "_")
+}
 
 
 
