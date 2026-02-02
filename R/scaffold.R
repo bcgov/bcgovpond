@@ -65,6 +65,9 @@ create_bcgov_pond_project <- function(
 
   do.call(usethis::create_project, create_args)
 
+  # Activate the newly created project for downstream usethis/bcgovr calls
+  usethis::proj_set(path_norm, force = TRUE)
+
   # ------------------------------------------------------------
   # BC Gov required files
   # ------------------------------------------------------------
@@ -111,25 +114,17 @@ create_bcgov_pond_project <- function(
         "# =========================================================",
         "",
         "# 1. Ingest raw files dropped into data_store/add_to_pond",
-        "ingest_pond(",
-        '  add_to_pond = "data_store/add_to_pond",',
-        '  data_pond   = "data_store/data_pond",',
-        '  meta_dir    = "data_index/meta",',
-        '  views_dir   = "data_index/views"',
-        ")",
+        "ingest_pond()",
         "",
         "# 2. Convert large CSVs to Parquet (optional)",
         "parquet_large_csvs(",
-        '  data_pond    = "data_store/data_pond",',
-        '  data_parquet = "data_store/data_parquet",',
-        '  views_dir    = "data_index/views",',
         "  min_size_mb  = 250,",
         "  chunk_size   = 1000000  # reduce if running out of RAM",
         ")",
         "",
         "# 3. Resolve current pointers",
         "resolve_current(",
-        '  views_dir = "data_index/views"',
+        " test.csv",
         ")",
         ""
       ),
