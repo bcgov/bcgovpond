@@ -40,6 +40,7 @@ Most research projects fail at one (or more) of the following:
 This project installs its R packages directly from GitHub using a helper tool called pak, which works on Windows, macOS, and Linux. To get started, open R or RStudio and run:
 
 install.packages("pak")
+
 pak::pak("bcgov/bcgovpond")
 
 The first time you do this on Windows, you may see a message asking to install Rtools—this is expected and only needs to be done once. If messages scroll by during installation, that’s normal; you don’t need to interact unless an error appears. Once this finishes, everything you need for the project will be installed automatically.
