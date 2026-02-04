@@ -10,7 +10,7 @@
 #' @export
 ingest_single <- function(path, meta_dir, view_dir, provenance = NULL) {
   fname <- basename(path)
-  sem   <- semantic_name(fname)
+  sem   <- .semantic_name(fname)
   meta  <- content_meta(path)
 
   meta_out <- c(

@@ -41,7 +41,7 @@ parquet_large_csvs <- function(
     csv_path     = csvs,
     size_mb      = fs::file_info(csvs)$size / 1024^2,
     raw_fname    = fs::path_file(csvs),
-    sem          = vapply(fs::path_file(csvs), semantic_name, character(1)),
+    sem          = vapply(fs::path_file(csvs), .semantic_name, character(1)),
     parquet_fname= paste0(fs::path_ext_remove(fs::path_file(csvs)), ".parquet"),
     parquet_path = file.path(data_parquet, paste0(fs::path_ext_remove(fs::path_file(csvs)), ".parquet"))
   ) |>
