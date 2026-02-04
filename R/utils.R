@@ -3,7 +3,7 @@
 #' Removes everything up to and including the first underscore (`_`).
 #' This is used to strip versioning or source prefixes from filenames,
 #' leaving the stable semantic name.
-semantic_name <- function(fname) {
+.semantic_name <- function(fname) {
   sub("^[^_]*_", "", fname)
 }
 

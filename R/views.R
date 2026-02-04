@@ -41,38 +41,17 @@ write_view <- function(
   invisible(TRUE)
 }
 
-#' Read a view definition
-#'
-#' Reads a YAML view file for a given semantic dataset name.
-#' Returns NULL if the view does not exist or cannot be read.
-#'
-#' @param view_dir Directory containing view files
-#' @param semantic_name Stable semantic dataset name
-#'
-#' @return A named list representing the view definition, or NULL
-#'
-#' @export
-read_view <- function(view_dir, semantic_name) {
-  p <- file.path(view_dir, paste0(semantic_name, ".yml"))
-  if (!file.exists(p)) return(NULL)
-  yml <- yaml::read_yaml(p)
-  if (!is.list(yml)) return(NULL)
-  yml
-}
-
-
 #' Resolve the current file path for a dataset
 #'
 #' Given a semantic dataset name, resolves the preferred concrete
 #' file path (raw or parquet) based on the view definition.
 #'
 #' @param name Semantic dataset name
-#'
+#' @param view_dir Character scalar. Directory containing view YAML files.
 #' @return Normalized file path to the current dataset representation
 #'
 #' @export
-resolve_current <- function(name) {
-  view_dir <- file.path("data_index", "views")
+resolve_current <- function(name, view_dir = "data_index/views") {
   yml <- yaml::read_yaml(file.path(view_dir, paste0(name, ".yml")))
 
   stopifnot(is.list(yml))
@@ -87,6 +66,30 @@ resolve_current <- function(name) {
   }
 
   normalizePath(file.path("data_store", "data_pond", yml$raw), mustWork = FALSE)
+}
+
+#' Read data backing a view
+#'
+#' Resolves the current file backing a view and reads it into R using
+#' an appropriate reader based on file extension.
+#'
+#' @param semantic_name Character scalar. Logical name of the view.
+#' @param view_dir Directory containing view YAML files.
+#'
+#' @return A data frame (or tibble).
+#' @export
+read_view <- function(semantic_name, view_dir = "data_index/views") {
+  path <- resolve_current(semantic_name, view_dir = view_dir)
+
+  ext <- tolower(tools::file_ext(path))
+
+  switch(
+    ext,
+    csv     = vroom::vroom(path),
+    xlsx    = readxl::read_xlsx(path),
+    parquet = arrow::read_parquet(path),
+    stop("Unsupported file type: .", ext, call. = FALSE)
+  )
 }
 
 #' Rebuild view definitions from metadata

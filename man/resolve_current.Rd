@@ -4,10 +4,12 @@
 \alias{resolve_current}
 \title{Resolve the current file path for a dataset}
 \usage{
-resolve_current(name)
+resolve_current(name, view_dir = "data_index/views")
 }
 \arguments{
 \item{name}{Semantic dataset name}
+
+\item{view_dir}{Character scalar. Directory containing view YAML files.}
 }
 \value{
 Normalized file path to the current dataset representation

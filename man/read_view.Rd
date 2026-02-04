@@ -2,19 +2,19 @@
 % Please edit documentation in R/views.R
 \name{read_view}
 \alias{read_view}
-\title{Read a view definition}
+\title{Read data backing a view}
 \usage{
-read_view(view_dir, semantic_name)
+read_view(semantic_name, view_dir = "data_index/views")
 }
 \arguments{
-\item{view_dir}{Directory containing view files}
+\item{semantic_name}{Character scalar. Logical name of the view.}
 
-\item{semantic_name}{Stable semantic dataset name}
+\item{view_dir}{Directory containing view YAML files.}
 }
 \value{
-A named list representing the view definition, or NULL
+A data frame (or tibble).
 }
 \description{
-Reads a YAML view file for a given semantic dataset name.
-Returns NULL if the view does not exist or cannot be read.
+Resolves the current file backing a view and reads it into R using
+an appropriate reader based on file extension.
 }
