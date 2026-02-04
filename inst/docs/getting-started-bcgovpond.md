@@ -129,8 +129,27 @@ IMPORTANT!!!  File names MUST have the following structure
 
 Do not attempt to overwrite files already in the pond. (e.g. once 2021_census_industry.xlsx is in the pond, do not try to add another file to the pond with the same name.  Rather, add file 2021(v2)_census_industry.xlsx to the pond, and the read_view("census_industry.xlsx") will use the revised version.
 
-Do not rename files in the pond.  
+In Windoz you must remember to never touch files in the pond! 
 
+In Linux you can protect your raw data in two steps:
+
+1) chmod 755 data_pond 
+
+2) sudo chattr +i data_pond/*
+
+For the contents of the data_pond, you
+
+    ❌ cannot edit
+
+    ❌ cannot delete
+
+    ❌ cannot rename
+
+    ❌ cannot overwrite
+
+    ❌ even root can’t modify without removing the flag
+
+Which is exactly what you want for canonical raw data.
 
 ---
 
