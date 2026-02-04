@@ -4,12 +4,14 @@
 \alias{read_view}
 \title{Read data backing a view}
 \usage{
-read_view(semantic_name, view_dir = "data_index/views")
+read_view(semantic_name, view_dir = "data_index/views", skip = 0)
 }
 \arguments{
 \item{semantic_name}{Character scalar. Logical name of the view.}
 
 \item{view_dir}{Directory containing view YAML files.}
+
+\item{skip}{Number of lines to skip when reading either csv or excel}
 }
 \value{
 A data frame (or tibble).

@@ -75,18 +75,19 @@ resolve_current <- function(name, view_dir = "data_index/views") {
 #'
 #' @param semantic_name Character scalar. Logical name of the view.
 #' @param view_dir Directory containing view YAML files.
+#' @param skip Number of lines to skip when reading either csv or excel
 #'
 #' @return A data frame (or tibble).
 #' @export
-read_view <- function(semantic_name, view_dir = "data_index/views") {
+read_view <- function(semantic_name, view_dir = "data_index/views", skip=0) {
   path <- resolve_current(semantic_name, view_dir = view_dir)
 
   ext <- tolower(tools::file_ext(path))
 
   switch(
     ext,
-    csv     = vroom::vroom(path),
-    xlsx    = readxl::read_xlsx(path),
+    csv     = vroom::vroom(path, skip=skip),
+    xlsx    = readxl::read_xlsx(path, skip=skip),
     parquet = arrow::read_parquet(path),
     stop("Unsupported file type: .", ext, call. = FALSE)
   )
