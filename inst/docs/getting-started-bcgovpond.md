@@ -115,25 +115,22 @@ For example:
 
 ```
 data_store/add_to_pond/
-  2025_lfs_employment_bc.csv
-  2024_industry_mapping.xlsx
+  2021_census_industry.xlsx
+  RTRA3605542_agenaics.csv
 ```
 
-IMPORTANT!!!  File names are assume to follow the structure 
+IMPORTANT!!!  File names MUST have the following structure 
 
-`specific file information no underscores`_`logical_name`.`extension`
+`specific info with no underscores`_`general_info`
 
-e.g.
+- bcgovpond uses the first underscore _ in a file name to split the file name into specific info vs. general info.
+- Specific info is the part of the file name that changes over time e.g. census year, RTRA identifier.
+- General info pertains to what type of information the file ALWAYS contains e.g. census_industry.xlsx, agenaics.csv.
 
-2021_census_industry.xlsx or
+Do not attempt to overwrite files already in the pond. (e.g. once 2021_census_industry.xlsx is in the pond, do not try to add another file to the pond with the same name.  Rather, add file 2021(v2)_census_industry.xlsx to the pond, and the read_view("census_industry.xlsx") will use the revised version.
 
-RTRA3605542_agenaics.csv
+Do not rename files in the pond.  
 
-In the first case the specific file info is the census year, and the logical name is census_industry.xlsx.
-In the second case the specific file info is the RTRA identifier, and the logical name is agenaics.csv
-
-Do not overwrite or rename older files.  
-bcgovpond assumes new data arrives as new files.
 
 ---
 
@@ -166,7 +163,7 @@ git commit -m "Ingest initial raw data"
 Always load data using **views**, never file paths.
 
 ```r
-employment <- read_view("lfs_employment_bc")
+agenaics <- read_view("agenaics.csv")
 ```
 
 Why this matters:
@@ -190,7 +187,7 @@ This is useful for:
 Example:
 
 ```r
-resolve_current("lfs_employment_bc")
+resolve_current("agenaics.csv")
 ```
 
 This function is intentionally explicit and verbose.  
@@ -221,6 +218,13 @@ To recreate an earlier output:
 No manual file juggling required.
 
 ---
+
+## A note on shinyapps.io
+
+- bcgovpond is meant for preprocessing, not for app deployment.
+- your app should NOT read data from the data pond.
+- all the data your app requires should be created by a preprocessing script and saved as .rds files in a separate folder e.g. app_data.
+- your app should only read these .rds files.  
 
 ## Summary
 
