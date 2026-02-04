@@ -1,4 +1,4 @@
-# bcgovpond
+# bcgovpond <img src="man/figures/bcgovpond.png" align="right" height="139" />
 
 `bcgovpond` is an opinionated R package for managing **immutable research data** using a
 *data-pond* pattern: append-only raw files, explicit metadata, and stable logical
