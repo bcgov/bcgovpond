@@ -43,7 +43,7 @@ install.packages("pak")
 
 pak::pak("bcgov/bcgovpond")
 
-The first time you do this on Windows, you may see a message asking to install Rtools, which is optional in this case (if you are going to use pak more widely, worth doing). If messages scroll by during installation, that’s normal; you don’t need to interact unless an error appears. Once this finishes, everything you need for the project will be installed automatically.
+The first time you do this on Windows, you may see a message asking to install Rtools, which is optional in this case (but if you are going to use pak more widely, worth doing). If messages scroll by during installation, that’s normal; you don’t need to interact unless an error appears. Once this finishes, everything you need for the project will be installed automatically.
 
 ## Core concepts
 
