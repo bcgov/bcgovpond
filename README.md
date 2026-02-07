@@ -7,10 +7,10 @@ pointers (“views”) that decouple analysis code from physical file names.
 This package was built for **real research workflows**, not for abstract elegance.
 It assumes that people:
 
-* dump CSV/XLSX files into folders,
-* forget what version they used six months ago,
-* want reproducibility without constant babysitting,
-* and mostly work in R on Linux.
+- dump CSV/XLSX files into folders,
+- forget what version they used six months ago,
+- want reproducibility without constant babysitting,
+- and mostly work in R on Linux.
 
 If that sounds familiar, this package is for you.
 
@@ -20,11 +20,11 @@ If that sounds familiar, this package is for you.
 
 Most research projects fail at one (or more) of the following:
 
-* Raw data silently changes
-* Files are overwritten without record
-* Analysis scripts hard-code file paths
-* “Final” datasets cannot be reconstructed
-* Metadata lives in people’s heads
+- Raw data silently changes  
+- Files are overwritten without record  
+- Analysis scripts hard-code file paths  
+- “Final” datasets cannot be reconstructed  
+- Metadata lives in people’s heads  
 
 `bcgovpond` addresses these problems by enforcing a few simple rules:
 
@@ -33,17 +33,23 @@ Most research projects fail at one (or more) of the following:
 3. **Analysis code never points directly to raw files**
 4. **Logical names (“views”) can be updated, but history is preserved**
 
+Most users will only ever call **`ingest_pond()`** and **`read_view()`**.
+
 ---
 
-## How to install this R package (first time setup)
+## Installation
 
-This project installs its R packages directly from GitHub using a helper tool called pak, which works on Windows, macOS, and Linux. To get started, open R or RStudio and run:
+Install directly from GitHub using `pak`:
 
+```r
 install.packages("pak")
-
 pak::pak("bcgov/bcgovpond")
+```
 
-The first time you do this on Windows, you may see a message asking to install Rtools, which is optional in this case (but if you are going to use pak more widely, worth doing). If messages scroll by during installation, that’s normal; you don’t need to interact unless an error appears. Once this finishes, everything you need for the project will be installed automatically.
+On Windows, you may be prompted to install Rtools. This is optional for this package,
+but recommended if you plan to use `pak` more broadly.
+
+---
 
 ## Core concepts
 
@@ -51,12 +57,12 @@ The first time you do this on Windows, you may see a message asking to install R
 
 The *pond* is where canonical raw data lives.
 
-* Files are moved into the pond
-* Files are never edited in place
-* New versions are added, not overwritten
-* (Optionally) files can be made immutable at the filesystem level
+- Files are moved into the pond
+- Files are never edited in place
+- New versions are added, not overwritten
+- Files may optionally be made immutable at the filesystem level
 
-Think of this as *“cold storage for raw inputs”*.
+Think of this as *cold storage for raw inputs*.
 
 ---
 
@@ -64,35 +70,28 @@ Think of this as *“cold storage for raw inputs”*.
 
 Every file in the pond has a corresponding YAML metadata file describing:
 
-* source
-* contents
-* structure
-* relevant identifiers (as available)
+- source
+- contents
+- structure
+- relevant identifiers (as available)
 
-Metadata files are **tracked in git**.
-Data files usually are not.
+Metadata files are **tracked in git**.  
+Raw data files usually are not.
 
 ---
 
 ### 3. Views (`data_index/views/`)
 
-A *view* is a small YAML pointer that maps a **stable logical name** to a **specific physical file**.
-
-Example (simplified):
-
-```yaml
-logical_name: census_population_bc
-path: data_store/data_pond/2021_census_population_bc.csv
-hash: 3f2a9c...
-```
+A *view* is a small YAML pointer that maps a **stable logical name** to a
+**specific physical file**.
 
 Analysis scripts load data via views, not raw file paths.
 
 When a new version of a dataset arrives:
 
-* the old file stays in the pond
-* the view is updated to point to the new file
-* old analyses can still be reproduced
+- the old file stays in the pond
+- the view is updated to point to the new file
+- old analyses can still be reproduced
 
 ---
 
@@ -100,14 +99,14 @@ When a new version of a dataset arrives:
 
 New files land here first.
 
-`bcgovpond` functions:
+`bcgovpond` ingestion functions:
 
-* inspect the file
-* generate metadata
-* move it into the pond
-* update or create the appropriate view
+- inspect the file
+- generate metadata
+- move it into the pond
+- update or create the appropriate view
 
-This keeps the ingestion process boring and repeatable.
+This keeps ingestion boring and repeatable.
 
 ---
 
@@ -128,19 +127,102 @@ You **commit `data_index/`**, not the raw or derived data in `data_store/`.
 
 ---
 
+## Project setup (one-time)
+
+For a new analysis project, initialize the standard data-pond structure once:
+
+```r
+create_bcgov_pond_project()
+```
+
+This creates the required directories:
+
+- `data_store/` (raw and derived data, not tracked in git)
+- `data_index/` (metadata and views, tracked in git)
+
+After this initial setup, most users will only need
+`ingest_pond()` and `read_view()`.
+
+---
+
+## Typical workflow (most users)
+
+1. Drop new CSV or XLSX files into `data_store/add_to_pond/`
+2. Run:
+   ```r
+   ingest_pond()
+   ```
+3. Load data in analysis code using views:
+   ```r
+   tb <- read_view("census_industry")
+   ```
+
+That’s it.  
+No file paths. No version handling in analysis code.
+
+---
+
+## File naming (important)
+
+Raw file names must follow this pattern:
+
+```
+specific-info_general-info.ext
+```
+
+- The **first underscore** is meaningful
+- `specific-info` changes over time (year, extract ID, version)
+- `general-info` identifies the dataset concept
+
+Examples:
+
+- `2021_census_industry.xlsx`
+- `RTRA3605542_agenaics.csv`
+
+Do not overwrite files already in the pond.  
+New versions must always have new filenames.
+
+---
+
+## Inspecting and debugging views (advanced)
+
+If you need to see which physical file a view currently points to:
+
+```r
+resolve_current("census_industry")
+```
+
+This is useful for:
+
+- debugging unexpected results
+- auditing data provenance
+- confirming which raw file is active
+
+Most analysis code should **not** need this.
+
+---
+
 ## A note on Parquet
 
 Parquet files are treated as **derived artifacts**, not primary data.
 
-* They exist for performance and convenience
-* They may be deleted and regenerated at any time
-* They are *not* authoritative
-* Views should **never** point to Parquet files
+- They exist for performance and convenience
+- They may be deleted and regenerated at any time
+- They are not authoritative
+- Views should never treat Parquet as the source of truth
 
 > **Parquet is a cache, not a source of truth.**
 
-The source of truth is always the immutable files in `data_store/data_pond/`,
-as described by `data_index/meta/` and referenced via `data_index/views/`.
+---
+
+## Immutability (recommended)
+
+Raw data in `data_store/data_pond/` should be treated as read-only.
+
+On Linux, this can be enforced at the filesystem level.
+On Windows, this relies on user discipline.
+
+Either way: **never edit or overwrite files in the pond**.
 
 ---
 
@@ -148,65 +230,57 @@ as described by `data_index/meta/` and referenced via `data_index/views/`.
 
 `bcgovpond` is intentionally **not**:
 
-* A general-purpose data lake framework
-* A CRAN-polished, pure-function package
-* A tidyverse-style abstraction layer
-* A database replacement
-* A Parquet-first system
+- a general-purpose data lake framework
+- a CRAN-polished, pure-function package
+- a tidyverse-style abstraction layer
+- a database replacement
+- a Parquet-first system
 
-It **does** touch your filesystem.
-It **does** have side effects.
-
+It touches the filesystem and has side effects.  
 That is the point.
 
 ---
 
 ## Design philosophy
 
-* **Safety over elegance**
-* **Reproducibility over convenience**
-* **Filesystem semantics are real APIs**
-* **Boring > clever**
-* **Humans make mistakes; systems should assume that**
+- **Safety over elegance**
+- **Reproducibility over convenience**
+- **Filesystem semantics are real APIs**
+- **Boring > clever**
+- **Humans make mistakes; systems should assume that**
 
 If these assumptions bother you, this package will bother you.
 
 ---
 
-## Typical workflow
+## Reproducibility
 
-1. Drop a new CSV or XLSX file into `data_store/add_to_pond/`
-2. Run the ingestion function
-3. A metadata file is created
-4. The file is moved into `data_store/data_pond/`
-5. A view is created or updated
-6. Analysis scripts continue to work unchanged
+Reproducibility relies on **Git + `data_index/` + `renv`**, not copying data folders.
 
----
+### One-time setup
 
-## Supported file types
+Initialize `renv` once:
 
-Currently designed for:
+```r
+renv::init()
+```
 
-* CSV
-* XLSX
+Track in git:
 
-Parquet is supported *optionally* and intentionally kept **outside the core ingestion path**
-to avoid memory issues and API instability.
+- `renv.lock`
+- `renv/activate.R`
+- all analysis code
+- `data_index/`
 
----
+### Reproducing results
 
-## Platform assumptions
-
-* Linux (strongly preferred)
-* R ≥ 4.x
-* Users comfortable with:
-
-  * git
-  * directories
-  * not editing raw data files by hand
-
-Windows network drives and shared folders may work, but immutability guarantees are weaker.
+1. Check out the desired git commit
+2. Ensure the corresponding raw files exist in `data_store/data_pond/`
+3. Restore packages:
+   ```r
+   renv::restore()
+   ```
+4. Run the analysis scripts
 
 ---
 
@@ -214,99 +288,11 @@ Windows network drives and shared folders may work, but immutability guarantees 
 
 This package is:
 
-* stable enough for daily use
-* intentionally opinionated
-* evolving slowly and conservatively
+- stable enough for daily use
+- intentionally opinionated
+- evolving slowly and conservatively
 
 APIs may change, but the **conceptual model will not**.
-
----
-
-## Why “pond” and not “lake”?
-
-A pond is:
-
-* smaller
-* shallower
-* easier to reason about
-* appropriate for research teams
-
-You don’t need a data lake to keep your data from lying to you.
-
----
-
-## Governance
-
-`bcgovpond` works best when:
-
-* one person “owns” ingestion
-* everyone else consumes via views
-* raw data is treated as read-only
-* mistakes are fixed by adding data, not editing history
-
----
-
-## Reproducibility
-
-This project is reproducible given the same raw data and R environment.
-
-### Project setup (one-time)
-
-When the project is first created, the author should initialize `renv` once to
-record package versions:
-
-```r
-renv::init()
-```
-
-Do not rerun `renv::init()` in an existing project; use `renv::restore()` instead.
-
-### Git tracking for renv
-
-The following `renv` files should be tracked in git:
-
-- `renv.lock`
-- `renv/activate.R`
-
-Local package libraries managed by `renv` (e.g. `renv/library/`) are
-machine-specific and must not be committed.
-
-### Other files tracked by git
-
-In addition to `renv.lock`, git must track:
-
-- All R scripts used to produce the analysis outputs.
-- `data_index/` (metadata and views defining data selection).
-
-### Reproducing results
-
-To reproduce results for a given git commit:
-
-1. Check out the desired commit.
-2. Ensure the corresponding raw files exist in `data_store/data_pond/`.
-3. Restore package versions with:
-
-   ```r
-   renv::restore()
-   ```
-4. Run the project scripts as documented.
-
-Exact reproduction assumes a compatible R version and system libraries.
-
-### Archival runs
-
-At the end of a finalized analysis run, record the environment and commit the result:
-
-```r
-renv::status()
-renv::snapshot()
-git commit -am "Reproducible run: code + data_index + renv"
-```
-
-This commit represents a reproducible archival checkpoint.
-
-A new commit is only required if code, data selection (`data_index/`),
-or package versions have changed.
 
 ---
 
@@ -314,9 +300,9 @@ or package versions have changed.
 
 If you are looking for:
 
-* maximum flexibility,
-* silent overwrites,
-* or “just load the latest file” shortcuts,
+- maximum flexibility,
+- silent overwrites,
+- or “just load the latest file” shortcuts,
 
 this package will feel annoying.
 
