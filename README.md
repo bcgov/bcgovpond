@@ -10,7 +10,7 @@ It assumes that people:
 - dump CSV/XLSX files into folders,
 - forget what version they used six months ago,
 - want reproducibility without constant babysitting,
-- and mostly work in R on Linux.
+- and mostly work in R.
 
 If that sounds familiar, this package is for you.
 
@@ -33,7 +33,7 @@ Most research projects fail at one (or more) of the following:
 3. **Analysis code never points directly to raw files**
 4. **Logical names (“views”) can be updated, but history is preserved**
 
-Most users will only ever call **`ingest_pond()`** and **`read_view()`**.
+Most users will only ever call **`create_bcgov_pond_project()`** (once per project) **`ingest_pond()`** (when new data arrives) and **`read_view()`** (for access to the data)
 
 ---
 
