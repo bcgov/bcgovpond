@@ -7,7 +7,6 @@
 #' @param view_dir Directory where view YAML files are written
 #' @param provenance Optional provenance information
 #'
-#' @export
 ingest_single <- function(path, meta_dir, view_dir, provenance = NULL) {
   fname <- basename(path)
   sem   <- .semantic_name(fname)
@@ -49,7 +48,6 @@ ingest_single <- function(path, meta_dir, view_dir, provenance = NULL) {
 #' @param meta_dir Directory where metadata YAML files are written
 #' @param view_dir Directory where view YAML files are written
 #'
-#' @export
 ingest_zip <- function(zip_path, pond_dir, meta_dir, view_dir) {
   zip_name <- basename(zip_path)
   prepend  <- zip_prepend(zip_name)

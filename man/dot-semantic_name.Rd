@@ -2,12 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{.semantic_name}
 \alias{.semantic_name}
-\title{Extract semantic portion of a filename}
+\title{Derive a semantic dataset name from a raw filename}
 \usage{
 .semantic_name(fname)
 }
-\description{
-Removes everything up to and including the first underscore (\verb{_}).
-This is used to strip versioning or source prefixes from filenames,
-leaving the stable semantic name.
+\arguments{
+\item{fname}{Character scalar. Name of a raw data file.}
 }
+\value{
+Character scalar giving the derived semantic dataset name.
+}
+\description{
+\strong{Internal helper.} Derives a semantic dataset name from a raw data
+filename according to package-specific naming conventions.
+
+This function is used internally when constructing views and other
+metadata. Naming conventions may evolve over time and should not be
+relied upon directly by user code.
+}
+\keyword{internal}

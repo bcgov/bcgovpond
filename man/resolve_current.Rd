@@ -4,7 +4,7 @@
 \alias{resolve_current}
 \title{Resolve the current file path for a dataset}
 \usage{
-resolve_current(name, view_dir = "data_index/views")
+resolve_current(name, view_dir = file.path("data_index", "views"))
 }
 \arguments{
 \item{name}{Semantic dataset name}

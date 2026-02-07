@@ -1,16 +1,21 @@
-#' Extract semantic portion of a filename
+#' Derive a semantic dataset name from a raw filename
 #'
-#' Removes everything up to and including the first underscore (`_`).
-#' This is used to strip versioning or source prefixes from filenames,
-#' leaving the stable semantic name.
+#' @description
+#' **Internal helper.** Derives a semantic dataset name from a raw data
+#' filename according to package-specific naming conventions.
+#'
+#' This function is used internally when constructing views and other
+#' metadata. Naming conventions may evolve over time and should not be
+#' relied upon directly by user code.
+#'
+#' @param fname Character scalar. Name of a raw data file.
+#'
+#' @return Character scalar giving the derived semantic dataset name.
+#'
+#' @keywords internal
 .semantic_name <- function(fname) {
   sub("^[^_]*_", "", fname)
 }
-
-# Internal helper:
-# Returns RHS only when LHS is literally NULL
-# (0, FALSE, "", NA are all preserved)
-`%||%` <- function(x, y) if (is.null(x)) y else x
 
 # Prefix used when unzipping: take everything before first underscore
 zip_prepend <- function(fname) {

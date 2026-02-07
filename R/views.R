@@ -30,7 +30,7 @@ write_view <- function(
     raw           = as_filename(raw),
     parquet       = as_filename(parquet),
     meta_file     = as_filename(meta_file),
-    sha256        = sha256 %||% NULL,
+    sha256        = sha256,
     updated       = now_stamp()
   )
 
@@ -51,22 +51,42 @@ write_view <- function(
 #' @return Normalized file path to the current dataset representation
 #'
 #' @export
-resolve_current <- function(name, view_dir = "data_index/views") {
-  yml <- yaml::read_yaml(file.path(view_dir, paste0(name, ".yml")))
+resolve_current <- function(name, view_dir = file.path("data_index", "views")) {
+  view_file <- file.path(view_dir, paste0(name, ".yml"))
 
-  stopifnot(is.list(yml))
+  if (!file.exists(view_file)) {
+    stop("No view found for dataset: ", name, call. = FALSE)
+  }
+
+  yml <- yaml::read_yaml(view_file)
+
+  if (!is.list(yml)) {
+    stop("Invalid view file for dataset: ", name, call. = FALSE)
+  }
+
   if (is.null(yml$raw) || !nzchar(yml$raw)) {
-    stop("View is missing required field 'raw' for: ", name)
+    stop("View is missing required field 'raw' for: ", name, call. = FALSE)
   }
 
-  preferred <- yml$preferred %||% "raw"
+  preferred <- if (!is.null(yml$preferred)) yml$preferred else "raw"
 
-  if (preferred == "parquet" && !is.null(yml$parquet) && nzchar(yml$parquet)) {
-    return(normalizePath(file.path("data_store", "data_parquet", yml$parquet), mustWork = FALSE))
+  if (preferred == "parquet" &&
+      !is.null(yml$parquet) &&
+      nzchar(yml$parquet)) {
+    return(
+      normalizePath(
+        file.path("data_store", "data_parquet", yml$parquet),
+        mustWork = FALSE
+      )
+    )
   }
 
-  normalizePath(file.path("data_store", "data_pond", yml$raw), mustWork = FALSE)
+  normalizePath(
+    file.path("data_store", "data_pond", yml$raw),
+    mustWork = FALSE
+  )
 }
+
 
 #' Read data backing a view
 #'
@@ -93,15 +113,30 @@ read_view <- function(semantic_name, view_dir = "data_index/views", skip=0) {
   )
 }
 
-#' Rebuild view definitions from metadata
+#' Build or rebuild logical views for a data pond
 #'
-#' Scans metadata files and reconstructs view definitions,
-#' preferring Parquet representations when available.
+#' @description
+#' **Maintenance utility.** Rebuilds logical view pointer files based on the
+#' current contents of the data pond and associated metadata.
 #'
-#' @param views_dir Directory where view files are written
-#' @param meta_dir Directory containing metadata files
-#' @param pond_dir Directory containing raw data files
-#' @param pq_dir Directory containing parquet data files
+#' This function is intended for **infrastructure maintenance** (for example,
+#' after ingesting new raw files or modifying metadata). It is **not required
+#' for routine analysis workflows**.
+#'
+#' @details
+#' Analysts should typically use [read_view()] or [resolve_current()] rather
+#' than calling this function directly. The interface and behavior of
+#' `build_views()` may change as the data pond structure evolves.
+#'
+#' @param views_dir Character scalar. Directory where view YAML files will be
+#'   written.
+#' @param meta_dir Character scalar. Directory containing metadata YAML files
+#'   describing raw data files in the pond.
+#' @param pond_dir Character scalar. Directory containing raw data files.
+#' @param pq_dir Character scalar. Directory containing parquet files, if
+#'   present.
+#'
+#' @return Invisibly returns TRUE.
 #'
 #' @export
 build_views <- function(
@@ -120,12 +155,16 @@ build_views <- function(
 
   for (mf in meta_files) {
     meta <- yaml::read_yaml(mf)
-    if (!is.list(meta) || is.null(meta$file)) next
+
+    if (!is.list(meta) || is.null(meta$file)) {
+      warning("Skipping malformed meta file: ", basename(mf))
+      next
+    }
 
     raw_file <- basename(meta$file)
-    semantic_name <- meta$semantic_name %||% raw_file
+    semantic_name <- if (!is.null(meta$semantic_name)) meta$semantic_name else raw_file
 
-    parquet_file <- sub("\\.csv$", ".parquet", raw_file, ignore.case = TRUE)
+    parquet_file <- paste0(tools::file_path_sans_ext(raw_file), ".parquet")
     has_parquet  <- file.exists(file.path(pq_dir, parquet_file))
 
     view <- list(

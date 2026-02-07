@@ -2,7 +2,7 @@
 % Please edit documentation in R/parquet.R
 \name{parquet_large_csvs}
 \alias{parquet_large_csvs}
-\title{Convert large CSV files in the pond to Parquet}
+\title{Convert large CSV files in the data pond to parquet format}
 \usage{
 parquet_large_csvs(
   data_pond = file.path("data_store", "data_pond"),
@@ -14,20 +14,30 @@ parquet_large_csvs(
 )
 }
 \arguments{
-\item{data_pond}{Directory containing raw CSV files}
+\item{data_pond}{Directory containing raw CSV files.}
 
-\item{data_parquet}{Directory to write Parquet files}
+\item{data_parquet}{Directory where parquet files will be written.}
 
-\item{views_dir}{Directory containing view definitions}
+\item{views_dir}{Directory containing view YAML files.}
 
-\item{min_size_mb}{Minimum CSV size (MB) to trigger conversion}
+\item{min_size_mb}{Minimum CSV file size (in MB) required for conversion.}
 
-\item{compression}{Parquet compression codec}
+\item{compression}{Compression codec passed to Arrow.}
 
-\item{chunk_size}{Number of rows per read chunk}
+\item{chunk_size}{Number of rows per chunk when reading CSV files.}
+}
+\value{
+Invisibly returns TRUE.
 }
 \description{
-Scans the data pond for large CSV files, converts them to Parquet
-using chunked reads, and updates views to prefer the Parquet
-representation when available.
+\strong{Maintenance utility.} Identifies large CSV files in the data pond and
+converts them to parquet format for improved performance.
+
+This function is intended for \strong{periodic optimization and maintenance}.
+It is not required for normal data access and should not be used in
+analytical scripts.
+}
+\details{
+Parquet support is optional and requires the \pkg{arrow} package.
+The parquet conversion strategy and thresholds may change over time.
 }

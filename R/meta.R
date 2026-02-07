@@ -5,7 +5,8 @@ content_meta <- function(path) {
   size <- file.info(path)$size
 
   if (ext == "csv") {
-    cols  <- get_csv_header(path) %||% character()
+    cols <- get_csv_header(path)
+    if (is.null(cols)) cols <- character()
     types <- rep("unknown", length(cols))
 
   } else if (ext %in% c("xls", "xlsx")) {

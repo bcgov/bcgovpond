@@ -1,15 +1,28 @@
-#' Convert large CSV files in the pond to Parquet
+# For dplyr non-standard evaluation (R CMD check)
+utils::globalVariables(c("size_mb", "parquet_path"))
+
+#' Convert large CSV files in the data pond to parquet format
 #'
-#' Scans the data pond for large CSV files, converts them to Parquet
-#' using chunked reads, and updates views to prefer the Parquet
-#' representation when available.
+#' @description
+#' **Maintenance utility.** Identifies large CSV files in the data pond and
+#' converts them to parquet format for improved performance.
 #'
-#' @param data_pond Directory containing raw CSV files
-#' @param data_parquet Directory to write Parquet files
-#' @param views_dir Directory containing view definitions
-#' @param min_size_mb Minimum CSV size (MB) to trigger conversion
-#' @param compression Parquet compression codec
-#' @param chunk_size Number of rows per read chunk
+#' This function is intended for **periodic optimization and maintenance**.
+#' It is not required for normal data access and should not be used in
+#' analytical scripts.
+#'
+#' @details
+#' Parquet support is optional and requires the \pkg{arrow} package.
+#' The parquet conversion strategy and thresholds may change over time.
+#'
+#' @param data_pond Directory containing raw CSV files.
+#' @param data_parquet Directory where parquet files will be written.
+#' @param views_dir Directory containing view YAML files.
+#' @param min_size_mb Minimum CSV file size (in MB) required for conversion.
+#' @param compression Compression codec passed to Arrow.
+#' @param chunk_size Number of rows per chunk when reading CSV files.
+#'
+#' @return Invisibly returns TRUE.
 #'
 #' @export
 parquet_large_csvs <- function(
@@ -21,7 +34,7 @@ parquet_large_csvs <- function(
     chunk_size  = 100000 # if RAM constrained, reduce
 ) {
   # Soft-check dependencies
-  pkgs <- c("arrow", "fs", "tibble", "dplyr", "janitor", "purrr")
+  pkgs <- c("arrow", "fs", "tibble", "dplyr", "janitor", "purrr", "readr")
   missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
   if (length(missing) > 0) {
     stop("parquet_large_csvs() requires packages: ", paste(missing, collapse = ", "))
@@ -34,8 +47,11 @@ parquet_large_csvs <- function(
 
   if (length(csvs) == 0) {
     message("No CSV files found.")
-    return(invisible(NULL))
+    return(invisible(TRUE))
   }
+
+  # NOTE: Semantic dataset names are derived from raw filenames using an
+  # internal helper (.semantic_name). Naming conventions may evolve.
 
   tb <- tibble::tibble(
     csv_path     = csvs,
@@ -52,7 +68,7 @@ parquet_large_csvs <- function(
 
   if (nrow(tb) == 0) {
     message("No large, new CSVs to parquet.")
-    return(invisible(NULL))
+    return(invisible(TRUE))
   }
 
   for (i in seq_len(nrow(tb))) {
@@ -64,6 +80,11 @@ parquet_large_csvs <- function(
     writer <- NULL
     out <- NULL
     clean_names <- NULL
+    # Ensure parquet writer/output stream are closed even on error
+    on.exit({
+      if (!is.null(writer)) writer$Close()
+      if (!is.null(out)) out$Close()
+    }, add = TRUE)
 
     callback <- readr::SideEffectChunkCallback$new(function(chunk, pos) {
 
@@ -109,16 +130,13 @@ parquet_large_csvs <- function(
       )
     )
 
-    # Close writer/stream
-    if (!is.null(writer)) writer$Close()
-    if (!is.null(out)) out$Close()
-
-    # Update canonical view for this semantic dataset
+   # Update canonical view for this semantic dataset
     sem <- tb$sem[i]
     raw_fname <- tb$raw_fname[i]
     parquet_fname <- tb$parquet_fname[i]
 
-    old <- read_view(views_dir, sem) %||% list()
+    old <- read_view(views_dir, sem)
+    if (is.null(old)) old <- list()
 
     write_view(
       view_dir      = views_dir,
@@ -126,11 +144,10 @@ parquet_large_csvs <- function(
       raw           = raw_fname,
       parquet       = parquet_fname,
       preferred     = "parquet",
-      meta_file     = old$meta_file %||% NULL,
-      sha256        = old$sha256 %||% NULL
+      meta_file     =  if (!is.null(old$meta_file)) old$meta_file else NULL,
+      sha256        = if (!is.null(old$sha256))    old$sha256    else NULL
     )
   }
-
-  invisible(tb)
+  invisible(TRUE)
 }
 

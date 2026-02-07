@@ -3,8 +3,6 @@
 export(build_views)
 export(create_bcgov_pond_project)
 export(ingest_pond)
-export(ingest_single)
-export(ingest_zip)
 export(parquet_large_csvs)
 export(read_view)
 export(resolve_current)

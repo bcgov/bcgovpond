@@ -1,25 +1,31 @@
 Package: bcgovpond
-Title: What the Package Does (One Line, Title Case)
+Title: Manage Immutable Research Data Using a Data Pond Pattern
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Richard", "Martin", , "Richard.Martin@gov.bc.ca", role = c("aut", "cre"))
+Description: Implements a data pond pattern for managing immutable research data
+    in R projects. The package provides helpers for ingesting raw CSV and XLSX
+    files into append-only storage, recording metadata, generating stable logical
+    pointers ("views"), and resolving the current version of a dataset without
+    hard-coding file paths. It is designed for reproducible analytical workflows
+    used in British Columbia government projects.
+License: Apache License (>= 2.0) | file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
-    arrow,
     digest,
-    dplyr,
     fs,
-    janitor,
-    purrr,
-    readr,
+    yaml,
     readxl,
-    rstudioapi,
-    tibble,
-    usethis,
     vroom,
-    yaml
+    bcgovr
+Suggests:
+    dplyr,
+    purrr,
+    tibble,
+    janitor,
+    readr,
+    usethis,
+    rstudioapi,
+    arrow

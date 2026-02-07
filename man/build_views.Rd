@@ -2,7 +2,7 @@
 % Please edit documentation in R/views.R
 \name{build_views}
 \alias{build_views}
-\title{Rebuild view definitions from metadata}
+\title{Build or rebuild logical views for a data pond}
 \usage{
 build_views(
   views_dir = file.path("data_index", "views"),
@@ -12,15 +12,30 @@ build_views(
 )
 }
 \arguments{
-\item{views_dir}{Directory where view files are written}
+\item{views_dir}{Character scalar. Directory where view YAML files will be
+written.}
 
-\item{meta_dir}{Directory containing metadata files}
+\item{meta_dir}{Character scalar. Directory containing metadata YAML files
+describing raw data files in the pond.}
 
-\item{pond_dir}{Directory containing raw data files}
+\item{pond_dir}{Character scalar. Directory containing raw data files.}
 
-\item{pq_dir}{Directory containing parquet data files}
+\item{pq_dir}{Character scalar. Directory containing parquet files, if
+present.}
+}
+\value{
+Invisibly returns TRUE.
 }
 \description{
-Scans metadata files and reconstructs view definitions,
-preferring Parquet representations when available.
+\strong{Maintenance utility.} Rebuilds logical view pointer files based on the
+current contents of the data pond and associated metadata.
+
+This function is intended for \strong{infrastructure maintenance} (for example,
+after ingesting new raw files or modifying metadata). It is \strong{not required
+for routine analysis workflows}.
+}
+\details{
+Analysts should typically use \code{\link[=read_view]{read_view()}} or \code{\link[=resolve_current]{resolve_current()}} rather
+than calling this function directly. The interface and behavior of
+\code{build_views()} may change as the data pond structure evolves.
 }
