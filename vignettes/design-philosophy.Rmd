@@ -1,0 +1,202 @@
+---
+title: "bcgovpond: Design Philosophy"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Design philosophy}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  eval    = FALSE,
+  echo    = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+## Why an opinionated data-pond?
+
+**bcgovpond** is intentionally opinionated.
+
+It does not attempt to be a general-purpose data management framework, a workflow
+orchestrator, or a replacement for databases or cloud platforms. Instead, it
+enforces a small number of rules designed to prevent the most common
+reproducibility failures in applied research projects.
+
+The guiding principle is simple:
+
+> **Make common data-management failures impossible, not merely discouraged.**
+
+This requires explicit constraints rather than flexibility.
+
+---
+
+## The problem space bcgovpond targets
+
+bcgovpond is designed for projects where:
+
+- Data arrives as CSV or Excel files
+- Files are updated periodically (monthly, annually, ad hoc)
+- Analysts work primarily in R
+- Code is version-controlled with Git
+- Data is *not*:
+  - stored in a database,
+  - streamed from an API on every run,
+  - or managed by a centralized enterprise data platform
+
+In these environments, reproducibility usually breaks down not because of bad
+intentions, but because:
+
+- Raw data is overwritten
+- Filenames change silently
+- Scripts hard-code file paths
+- “Final” datasets cannot be reconstructed
+- Metadata lives in people’s heads
+- Recreating old outputs requires guesswork
+
+bcgovpond exists to solve *these* problems — and no others.
+
+---
+
+## Core design principles
+
+### 1. Raw data is immutable
+
+Once a raw file enters the data pond, it should never change.
+
+This mirrors long-standing practices in scientific data archiving, audit logging,
+and data-lake architectures. Immutability ensures that:
+
+- past results can always be reconstructed,
+- accidental edits cannot corrupt history,
+- and provenance is preserved by construction.
+
+In bcgovpond:
+
+- new data is appended,
+- old data is never modified or deleted,
+- and corrections arrive as new files, not edits.
+
+This rule is not optional — it is foundational.
+
+---
+
+### 2. Analysis code never points to physical files
+
+Hard-coded file paths are one of the most common sources of irreproducibility.
+
+bcgovpond enforces a strict separation between:
+
+- **physical storage** (where files live), and
+- **logical identity** (what the data represents).
+
+Analysis code refers only to **views** — stable logical names that resolve to a
+specific file at a point in time.
+
+This design borrows from database views and configuration-driven systems. The
+benefit is that files can move, filenames can change, and new data can arrive
+without requiring changes to analysis code.
+
+---
+
+### 3. “Current” is a convenience, not the truth
+
+In many workflows, “current data” silently replaces yesterday’s data.
+
+bcgovpond rejects this idea.
+
+Instead:
+
+- all historical data remains accessible,
+- “current” is just a pointer,
+- and history is preserved explicitly.
+
+Views can change.  
+Files do not.
+
+This makes it possible to reproduce past outputs, audit historical decisions, and
+understand how results evolved over time.
+
+---
+
+### 4. Metadata must be explicit and machine-readable
+
+If metadata exists only in comments, emails, or memory, it does not exist.
+
+Every file in the data pond is accompanied by structured metadata describing its
+source, acquisition date, and meaning. This approach is inspired by research data
+management (RDM) standards and FAIR principles.
+
+The goal is not bureaucracy — it is future clarity.
+
+---
+
+### 5. Prefer boring transparency over clever automation
+
+bcgovpond deliberately avoids:
+
+- hidden state,
+- implicit inference,
+- background automation,
+- or “magic” behaviors.
+
+Files are visible.  
+Folders are explicit.  
+Metadata is readable.  
+Views are plain YAML.
+
+This makes the system easy to audit, easy to explain to colleagues, and resilient
+to staff turnover. In long-lived research projects, clarity beats cleverness.
+
+---
+
+## What bcgovpond is *not*
+
+bcgovpond does **not**:
+
+- track dependencies between scripts,
+- orchestrate pipelines,
+- manage computational targets,
+- or cache intermediate results.
+
+Those problems are well served by tools such as `{targets}` or database systems.
+
+bcgovpond operates at a different layer:
+
+> It versions *data*, not *results*.
+
+It complements Git (for code) and `renv` (for environments), but does not attempt
+to replace them.
+
+---
+
+## Why this approach is intentionally narrow
+
+Many tools aim to be flexible enough to support every workflow. bcgovpond does the
+opposite.
+
+It encodes a specific belief:
+
+> **Most reproducibility failures are social and procedural, not computational.**
+
+By enforcing a small number of non-negotiable rules, bcgovpond removes entire
+classes of errors from the system. The cost is reduced flexibility. The benefit
+is long-term trust.
+
+---
+
+## Summary
+
+bcgovpond is opinionated because it has to be.
+
+Its opinions are shaped by real research workflows, audit and reproducibility
+requirements, and the constraints of everyday R use.
+
+If you want fully automated pipelines or cloud-native infrastructure, this
+package is probably not for you.
+
+If you want durable data, reproducible analysis, and the ability to answer
+*“what did we use, and why?”* years later, bcgovpond exists for exactly that
+purpose.

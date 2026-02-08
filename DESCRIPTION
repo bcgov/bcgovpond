@@ -9,8 +9,10 @@ Description: Implements a data pond pattern for managing immutable research data
     pointers ("views"), and resolving the current version of a dataset without
     hard-coding file paths. It is designed for reproducible analytical workflows
     used in British Columbia government projects.
-License: Apache License (>= 2.0) | file LICENSE
+License: Apache License (>= 2.0)
+LicenseFile: LICENSE
 Encoding: UTF-8
+VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
@@ -28,4 +30,6 @@ Suggests:
     readr,
     usethis,
     rstudioapi,
-    arrow
+    arrow,
+    knitr,
+    rmarkdown

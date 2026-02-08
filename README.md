@@ -296,6 +296,19 @@ APIs may change, but the **conceptual model will not**.
 
 ---
 
+## Design philosophy
+
+bcgovpond is intentionally opinionated.
+
+It is designed to prevent common reproducibility failures in applied research — such as overwritten raw data, hard-coded file paths, and undocumented “current” datasets — by enforcing a small number of non-negotiable rules: immutable raw data, explicit metadata, and stable logical views.
+
+These constraints are deliberate. They favor auditability and long-term trust over flexibility or automation.
+
+For a full explanation of the design choices and trade-offs, see:
+vignette("design-philosophy")
+
+---
+
 ## Final warning
 
 If you are looking for:
