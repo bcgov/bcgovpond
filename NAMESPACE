@@ -2,6 +2,7 @@
 
 export(build_views)
 export(create_bcgov_pond_project)
+export(fetch_statcan_zip)
 export(ingest_pond)
 export(parquet_large_csvs)
 export(read_view)
